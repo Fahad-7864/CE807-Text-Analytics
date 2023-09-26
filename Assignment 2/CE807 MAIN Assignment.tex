@@ -1,0 +1,365 @@
+% This must be in the first 5 lines to tell arXiv to use pdfLaTeX, which is strongly recommended.
+\pdfoutput=1
+% In particular, the hyperref package requires pdfLaTeX in order to break URLs across lines.
+
+\documentclass[11pt]{article}
+
+% Remove the "review" option to generate the final version.
+\usepackage[review]{acl}
+
+% Standard package includes
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage{graphicx}
+
+% For proper rendering and hyphenation of words containing Latin characters (including in bib files)
+\usepackage[T1]{fontenc}
+% For Vietnamese characters
+% \usepackage[T5]{fontenc}
+% See https://www.latex-project.org/help/documentation/encguide.pdf for other character sets
+
+% This assumes your files are encoded as UTF8
+\usepackage[utf8]{inputenc}
+
+% This is not strictly necessary, and may be commented out,
+% but it will improve the layout of the manuscript,
+% and will typically save some space.
+\usepackage{microtype}
+
+\usepackage[dvipsnames]{xcolor}
+
+% If the title and author information does not fit in the area allocated, uncomment the following
+%
+%\setlength\titlebox{<dim>}
+%
+% and set <dim> to something 5cm or larger.
+
+\title{CE807 – Assignment 2 - Final Practical Text Analytics and Report}
+
+% Author information can be set in various styles:
+% For several authors from the same institution:
+% \author{Author 1 \and ... \and Author n \\
+%         Address line \\ ... \\ Address line}
+% if the names do not fit well on one line use
+%         Author 1 \\ {\bf Author 2} \\ ... \\ {\bf Author n} \\
+% For authors from different institutions:
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \And  ... \And
+%         Author n \\ Address line \\ ... \\ Address line}
+% To start a seperate ``row'' of authors use \AND, as in
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \AND
+%         Author 2 \\ Address line \\ ... \\ Address line \And
+%         Author 3 \\ Address line \\ ... \\ Address line}
+
+\author{First Author \\
+  Affiliation / Address line 1 \\
+  Affiliation / Address line 2 \\
+  Affiliation / Address line 3 \\
+  \texttt{email@domain} \\\And
+  Second Author \\
+  Affiliation / Address line 1 \\
+  Affiliation / Address line 2 \\
+  Affiliation / Address line 3 \\
+  \texttt{email@domain} \\}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+This project aims to develop a model for classifying offensive content in tweets. Two models were selected for the task: a Voting Classifier Ensemble and a Bidirectional Long Short-Term Memory (Bi-LSTM) neural network. The dataset used in the project consists of a collection of tweets with labels indicating whether the tweet is offensive or not. The models were implemented using Python and TensorFlow, and their performance was evaluated using various metrics. The project also includes a discussion of the model selection process, details on the dataset used, and the hyperparameter tuning process. 
+
+\end{abstract}
+
+% \color{blue}
+
+
+
+\section{Materials}
+
+\begin{itemize}
+    \item \href{https://colab.research.google.com/drive/1Jxc1w22cM0kF2e2kJZIoybR8lCRQr0ht?usp=sharing}{Code}
+    \item \href{https://drive.google.com/drive/folders/1-FvWa2H8CADOwQRRJ2ulPqucCszQ3LPE?usp=share_link}{Google Drive Folder}  containing models and saved outputs
+    \item \href{https://essex-university.zoom.us/rec/share/4gsDeMsOx2ZepWpR3_6_GfLUxIjoaSRJYe52QOPbR5b-TXBpC7-1ZX9eJAMU7VG-.TWbEH7soVLcBb_89?startTime=1682416943000}{Presentation}
+\end{itemize}
+
+
+
+
+
+\section{Model Selection (Task 1)}
+\subsection{Summary of 2 selected Models}
+In this section, we summarize the two selected models for Task 1:
+1.	Model 1: Voting Classifier Ensemble
+2.	Model 2: Long Short-Term Memory (LSTM) Neural Network
+\subsubsection{Model 1: Voting Classifier Ensemble}
+The Voting Classifier Ensemble is an ensemble method that combines the results of multiple base classifiers to make predictions on whether a tweet is offensive or not. The base classifiers used in this ensemble model are Logistic Regression, Random Forest, and Support Vector Machines (SVM). The ensemble approach helps to improve the performance and generalizability of the model by leveraging the strengths of different classifiers and reducing the chances of overfitting.
+\subsubsection{Model 2: Long Short-Term Memory (LSTM) Neural Network}
+The LSTM Neural Network is a type of Recurrent Neural Network (RNN) designed to handle sequence data. LSTMs are particularly well-suited for natural language processing tasks such as sentiment analysis and text classification. The LSTM model analyzes the text of tweets to make predictions on whether they are offensive or not. It can capture long-range dependencies and maintain a memory of past input sequences, which is useful for understanding the context of words in a tweet.
+\subsection{Critical discussion and justification of model selection}
+The selection of the Voting Classifier Ensemble and LSTM Neural Network models is based on their unique advantages and capabilities in handling the task of classifying offensive tweets. The discussion below highlights the reasons for choosing these models, and Figure~\ref{fig:models} provides a visual representation of both models.
+\begin{itemize} \item The Voting Classifier Ensemble was selected due to its ability to improve performance, reduce overfitting, and increase robustness compared to single classifiers. By combining Logistic Regression, Random Forest, and SVM, the Voting Classifier leverages the strengths of each classifier and compensates for their weaknesses, leading to a more accurate and reliable model for predicting offensive content in tweets.
+\item The LSTM Neural Network was chosen because of its ability to handle sequence data and capture long-range dependencies in text. This is particularly important for the analysis of natural language, where the context of words and phrases plays a significant role in understanding the meaning of a text. The LSTM model is capable of learning complex relationships between words and phrases in tweets, making it an effective tool for classifying offensive content. \end{itemize}
+
+
+
+
+\section{Design and Implementation of Classifier (Task 2)}
+
+This section covers the dataset details, model implementation, hyperparameter tuning, and the evaluation of the selected model.
+
+\subsection{Dataset Details}
+
+The dataset utilized for this task consists of a collection of tweets with labels indicating whether the tweet is offensive or not. For details about the dataset, please refer to Table 1-3.
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Set} & \textbf{Statistics} \\ \hline
+Training & NOT: 8221, OFF: 4092 \\ \hline
+Validation & NOT: 619, OFF: 308 \\ \hline
+Test & NOT: 620, OFF: 240 \\ \hline
+\end{tabular}
+\caption{Label distribution in each set}
+\end{table}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Set} & \textbf{Average Tweet Length} \\ \hline
+Training & 126.33 \\ \hline
+Validation & 120.36 \\ \hline
+Test & 146.16 \\ \hline
+\end{tabular}
+\caption{Average tweet length in each set}
+\end{table}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Set} & \textbf{Number of Unique Words} \\ \hline
+Training & 18367 \\ \hline
+Validation & 3287 \\ \hline
+Test & 3624 \\ \hline
+\end{tabular}
+\caption{Number of unique words in each set}
+\end{table}
+
+\subsection{Model Selection and Implementation}
+
+A Bidirectional Long Short-Term Memory (Bi-LSTM) neural network was chosen for this task due to its ability to process sequences of data in both forward and backward directions, enabling it to capture the context of words before and after the current word in the sequence. This is particularly advantageous in NLP tasks like tweet classification.
+
+The model was built using the TensorFlow library and consists of the following layers:
+\begin{itemize}
+\item Embedding layer
+\item Bidirectional LSTM layer
+\item Dense layers with ReLU activation and dropout
+\item Output layer with softmax activation
+\end{itemize}
+
+To prepare the dataset for the model, the text data was preprocessed by removing stop words, tokenizing the text, and converting it into sequences of integers. The sequences were then padded to have the same length. The dataset was split into training and testing sets, with a 90%-10% split.
+
+\setlength{\parskip}{1em} % set the space between paragraphs to 1em
+Sparse categorical cross-entropy as the loss function is essential to this project. This loss function is suitable for multi-class classification problems where the classes are mutually exclusive. In the context of the project, the model is trained to classify tweets as offensive or non-offensive, which are two mutually exclusive classes. Using sparse categorical cross-entropy allows the model to learn the optimal weights for minimizing the misclassification of tweets into these categories. The loss function computes the cross-entropy loss between the true labels and the predicted probabilities generated by the model, enabling an efficient update of the model's weights during backpropagation.
+
+
+
+
+\subsection{Hyperparameter Tuning}
+
+Hyperparameters were optimized using Keras Tuner with the RandomSearch method, which performs a random search over a specified range of hyperparameter values. This method was chosen for its efficiency and ability to explore a wide range of hyperparameter combinations.
+
+The optimized hyperparameters for the model are as follows:
+\begin{itemize}
+\item Embedding size: 128
+\item LSTM units: 64
+\item Dense units: 192
+\item Dropout rate: 0.4
+\item Optimizer: Adam
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+\subsection{Model Insights}
+
+To gain a better understanding of the model's performance and its ability to classify tweets as offensive or not, a set of interesting examples was selected and analyzed. These examples showcase the strengths and weaknesses of the model, as well as the intricacies of language understanding.
+
+
+\begin{table}[ht]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2cm} X X}
+\hline
+\textbf{Example} & \textbf{Predicted Label} & \textbf{True Label} \\ \hline
+Example 1 & NOT & OFF \\
+\quad @ user gun control takes guns law abiding citizens & & \tabularnewline \hline
+Example 2 & OFF & NOT \\
+\quad \# theview stormy trapped dollar bill face poor pornstar worries democratic party leader & & \tabularnewline \hline
+Example 3 & OFF & OFF \\
+\quad \# fortnitebattleroyale \# xboxshare @ user please ban cheating scum . literally invisible url & & \tabularnewline \hline
+Example 4 & NOT & NOT \\
+\quad \# gemini woman : change scene , liable change cast & & \tabularnewline \hline
+\end{tabularx}
+\caption{Selected Examples from Model Predictions}
+\label{tab:examplesM12}
+\end{table}
+
+
+
+In Table 5, Example 1 represents a false positive case where the model incorrectly classified a non-offensive tweet as offensive. This could be due to the presence of certain words or phrases in the tweet that are typically associated with offensive language, leading the model to misinterpret the context.
+
+Example 2, on the other hand, is a false negative case where an offensive tweet was misclassified as non-offensive. This may be attributed to the model's inability to recognize subtle nuances or sarcasm in the tweet's language.
+
+Examples 3 and 4 demonstrate the model's correct classification of offensive and non-offensive tweets, respectively. These examples highlight the model's ability to identify offensive language and context in a variety of situations.
+
+
+
+\section{Data Size Effect (Task 3)}
+
+In this section,   the effect of different training data sizes on the performance of two models is analyzed: LSTM and Voting Classifier. The dataset was split into four different sizes: 25%, 50%, 75%, and 100%. Both models were tested on these varying train set sizes.
+
+\subsection{Dataset Details and Hyperparameters}
+
+For each dataset percentage, the same model architecture and hyperparameters were used. This ensures that the observed differences in performance can be attributed to the change in data size and not due to different model configurations.
+
+\subsection{Performance Comparison}
+
+In order to see the results please see tables 5-8 Based on the provided results, we can make the following observations:
+
+For the LSTM model:
+\begin{itemize}
+\item As the dataset size increases, the performance for the non-offensive (NOT) label improves, with higher precision, recall, and F1-score, Refer to 8.
+\item The performance for the offensive (OFF) label also improves with an increase in dataset size, but not as consistently as for the NOT label.
+\item In general, the LSTM model performs better on the NOT label compared to the OFF label.
+\end{itemize}
+
+For the Voting Classifier model:
+\begin{itemize}
+\item The performance for both NOT and OFF labels improves with increasing dataset size.
+\item The Voting Classifier demonstrates better overall performance on the NOT label as compared to the LSTM model.
+\item The performance on the OFF label for the Voting Classifier is also better than that of the LSTM model, with a more consistent improvement as the dataset size increases.
+\end{itemize}
+
+
+
+
+
+\section{Conlusion}
+
+In conclusion, this project compared two distinct models for classifying offensive tweets: the Voting Classifier Ensemble and the Long Short-Term Memory (LSTM) Neural Network. The Voting Classifier Ensemble combines the strengths of multiple base classifiers, improving overall performance. The LSTM Neural Network, on the other hand, is well-suited for natural language processing tasks due to its ability to capture long-range dependencies in text.
+
+Throughout the implementation and evaluation of both models, it was observed that the Voting Classifier generally had better performance, especially when handling the offensive label. Additionally, both models demonstrated improved performance as the dataset size increased.
+
+The Challenges faced during the project included understanding the problems and contextual norms of language, which led to some misclassifications. To improve upon this, further refinement and experimentation with other model architectures or additional features could be explored.
+
+In future work, a similar analysis could be conducted using different model architectures and ensemble methods to compare their performance in classifying offensive tweets. Additionally, more sophisticated text preprocessing techniques or feature engineering could be employed to enhance the models' understanding of language and context.
+\pagebreak
+\pagebreak
+
+\appendix
+
+\section{Appendix}
+
+
+This is the appendix section of the document.
+
+
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Dataset \%} & \textbf{Precision (OFF)} & \textbf{Recall (OFF)} & \textbf{F1-score (OFF)} \\ \hline
+100\%               & 0.45                     & 0.64                  & 0.53                    \\ \hline
+75\%                & 0.56                     & 0.51                  & 0.53                    \\ \hline
+50\%                & 0.51                     & 0.59                  & 0.55                    \\ \hline
+25\%                & 0.46                     & 0.57                  & 0.51                    \\ \hline
+\end{tabular}
+\caption{Comparison of LSTM performance with varying dataset percentages (focusing on offensive label)}
+\label{table:lstm_performance_comparison_offensive}
+\end{table}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Dataset \%} & \textbf{Precision (OFF)} & \textbf{Recall (OFF)} & \textbf{F1-score (OFF)} \\ \hline
+100\%               & 0.83                     & 0.41                  & 0.55                    \\ \hline
+75\%                & 0.83                     & 0.38                  & 0.52                    \\ \hline
+50\%                & 0.84                     & 0.36                  & 0.51                    \\ \hline
+25\%                & 0.88                     & 0.33                  & 0.48                    \\ \hline
+\end{tabular}
+\caption{Comparison of Voting Classifier performance with varying dataset percentages (focusing on OFF label)}
+\label{table:voting_classifier_performance_comparison_off}
+\end{table}
+
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Dataset \%} & \textbf{Precision (NOT)} & \textbf{Recall (NOT)} & \textbf{F1-score (NOT)} \\ \hline
+100\%               & 0.81                     & 0.97                  & 0.88                    \\ \hline
+75\%                & 0.80                     & 0.97                  & 0.88                    \\ \hline
+50\%                & 0.80                     & 0.97                  & 0.88                    \\ \hline
+25\%                & 0.79                     & 0.98                  & 0.88                    \\ \hline
+\end{tabular}
+\caption{Comparison of Voting Classifier performance with varying dataset percentages (focusing on NOT label)}
+\label{table:voting_classifier_performance_comparison_not}
+\end{table}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Dataset \%} & \textbf{Precision (NOT)} & \textbf{Recall (NOT)} & \textbf{F1-score (NOT)} \\ \hline
+100\%               & 0.83                     & 0.70                  & 0.76                    \\ \hline
+75\%                & 0.82                     & 0.84                  & 0.83                    \\ \hline
+50\%                & 0.83                     & 0.78                  & 0.80                    \\ \hline
+25\%                & 0.82                     & 0.74                  & 0.78                    \\ \hline
+\end{tabular}
+\caption{Comparison of LSTM performance with varying dataset percentages (focusing on NOT label)}
+\label{table:lstm_performance_comparison_not}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Model} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} & \textbf{Accuracy} \\
+\hline
+K-Nearest Neighbors & 0.66 & 0.58 & 0.58 & 0.69 \\
+\hline
+Support Vector Machine & 0.77 & 0.69 & 0.70 & 0.77 \\
+\hline
+Random Forest & 0.77 & 0.64 & 0.65 & 0.75 \\
+\hline
+Gradient Boosting & 0.77 & 0.63 & 0.63 & 0.75 \\
+\hline
+\end{tabular}
+\caption{Comparison of Model Performance Metrics}
+\label{tab:model_comparison}
+\end{table}
+
+
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{Voting classifier.png}
+\caption{Plot of LTSM and Voting Classifiers test results}
+\label{fig:image_label}
+\end{figure}
+% Entries for the entire Anthology, followed by custom entries
+\bibliography{anthology,custom}
+\bibliographystyle{acl_natbib}
+
+
+\end{document}
